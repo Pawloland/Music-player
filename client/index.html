@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <!-- <link rel="icon" href="<%= BASE_URL %>favicon.ico"> -->
+  <link rel="icon" href="/img/generic_album_v1.png">
+  <title>Webplayer</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    .padright {
+      padding-right: 20px;
+    }
+
+    /* to są różne takie parametry, do naprawy wyświetlania obrazków na chromie,bo po ich przeskalowaniu
+    bo na ff ładnie wyglądają, ale chrome jest upośledzony i robi z nich kaszę */
+    img {
+      image-rendering: -webkit-optimize-contrast;
+      /* filter: blur(0); */
+      /* -webkit-filter: blur(0); */
+      /* transform: translateZ(0); */
+      /* -webkit-transform: translateZ(0); */
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <script type="module" src="/src/main.js"></script>
+  </div>
+</body>
+
+</html>

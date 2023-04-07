@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/img/upload_album_v1.png">
+    <title>Album upload</title>
+    <style>
+        html {
+            width: 100%;
+            height: 100%;
+            font-family: sans-serif;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        #overlay {
+            background-color: rgba(211, 211, 211, 0.85);
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: xxx-large;
+            overflow: auto;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #outer {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #top {
+            background-color: #13558c;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 100px;
+        }
+
+        #top * {
+            pointer-events: none;
+        }
+
+        #top a {
+            pointer-events: all;
+            background-image: url("/img/generic_album_v1.png");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-origin: border-box;
+            display: block;
+            height: 50px;
+            width: 50px;
+        }
+
+        #files {
+            color: #13558c;
+            background-color: rgba(211, 211, 211, 1);
+        }
+
+        #files {
+            pointer-events: none;
+        }
+
+        #files * {
+            pointer-events: none;
+        }
+
+        #files div.file {
+            display: flex;
+            box-sizing: border-box;
+            width: 100%;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 20px;
+            font-size: large;
+        }
+
+        #files div.file span {
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="my_super_random_name_for_an_overlay" class="hidden">
+        Uploading...
+    </div>
+    <div id="outer">
+        <div id="top">
+            <a href="/">
+            </a>
+            <h1>Przeciągnij pliki tutaj</h1>
+        </div>
+        <div id="files">
+        </div>
+
+    </div>
+
+    <script>
+        let overlay = document.getElementById('my_super_random_name_for_an_overlay')
+        let top_div = document.getElementById('top')
+        let h1 = top_div.querySelector('h1')
+        let files_div = document.getElementById('files')
+
+        function recursiveDelayAnimation(set_text_if_not, previous_text) {
+            // ta funkcja zmienia text w 2 klatce, jeśli text w h1 jest inny niż podany, w parametrze,
+            // jest to potrzebne, bo bez tego w chromie jest takie mruganie tekstu, bo eventy sięzazębiają
+            // czyli jeden się zaczyna i dopiero wtedy wcześniejszy kończy
+            // zamiast jaeden się kończy i zaczeyn kolejny
+            // dzięki temu zmiana tekstu nastąpi dopiero po tym jak pierwszy event się skończy 
+            // (czyli po rozpoczęciu drugiego w klatce 0. + 1. klatka na zakończenie pierwszego + 2 klataka w której dopiero następuje zmiana, gdy mamy pewność, że oba eventy się zakończyły) 
+            // W sumie to nie można być pewnym, ale jest to wysoce prawdopodobne, bo przeglądarki nie są aż tak wolne
+            // ale jeśli by taka była na jakimś słabym urządzeniu to pewnie i tak zobaczymy mruganie
+            requestAnimationFrame(() => { requestAnimationFrame(() => { (h1.innerText != previous_text) && (h1.innerText = set_text_if_not) }) })
+            //           🠕                                🠕                                                        🠕
+            // ta sama klatka (klatka 0)      nastąpna klatka (klatka 1)                      klatka 2 w której zachodzi warunkowa zmiana
+
+        }
+
+        document.querySelector("html").ondragenter = function (e) {
+            console.log("dragenter nad dokumentem html")
+            h1.innerText = "Upuść tutaj"
+            e.preventDefault(); // usuwa domyślne zachowanie strony po wykonaniu zdarzenia, warto zakomentować i sprawdzić
+            e.stopPropagation(); // zatrzymuje dalszą propagację zdarzenia, warto zakomentować i sprawdzić
+        }
+
+
+        document.querySelector("html").ondragover = function (e) {
+            console.log("dragover nad dokumentem html")
+            e.preventDefault(); // usuwa domyślne zachowanie strony po wykonaniu zdarzenia, warto zakomentować i sprawdzić
+            e.stopPropagation(); // zatrzymuje dalszą propagację zdarzenia, warto zakomentować i sprawdzić
+        }
+
+        document.querySelector("html").ondragleave = function (e) {
+            console.log("dragleave nad dokumentem html")
+            recursiveDelayAnimation("Przeciągnij pliki tutaj", 'Upuść')
+            e.preventDefault(); // usuwa domyślne zachowanie strony po wykonaniu zdarzenia, warto zakomentować i sprawdzić
+            e.stopPropagation(); // zatrzymuje dalszą propagację zdarzenia, warto zakomentować i sprawdzić
+        }
+
+        top_div.ondragenter = function (e) {
+            console.log("dragenter na divie")
+            h1.innerText = "Upuść"
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+
+        top_div.ondragover = function (e) {
+            console.log("dragover na divie")
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        top_div.ondragleave = function (e) {
+            console.log("dragleave na divie")
+            e.stopPropagation();
+            e.preventDefault();
+        }
+
+        top_div.ondrop = async function (e) {
+            overlay.className = ''
+            document.querySelector("html").style.overflow = 'hidden'
+            document.querySelector("html").style['user-select'] = 'none'
+            document.querySelector("html").style['pointer-events'] = 'none'
+
+            h1.innerText = "Wysyłanie"
+            console.log("drop na divie")
+            e.stopPropagation();
+            e.preventDefault();
+
+
+            // teraz utwórz obiekt FormData zastępujący formularz - patrz poprzednie lekcje z uploadem
+            // oraz dodaj do niego po kolei wszystkie pliki z powyższej listy files
+            // na koniec użyj dowolnej technologii do uploadu pliku/ów - patrz poprzednie lekcje
+
+            let files = e.dataTransfer.files;
+            console.log(files)
+
+            let baseUrl = '/img/'
+            let fd = new FormData();
+
+            files_div.innerHTML = ''
+            for (let file of files) {
+                let new_div = document.createElement('div')
+                new_div.className = "file"
+                let extitnion = (['bmp', 'gif', 'jpg', 'jpeg', 'mp3', 'png', 'tiff'].some(available_extitnion => (function lambda() { (console.log(`&${file.name.split('.')[file.name.split('.').length - 1].toLowerCase()}& &${available_extitnion}&`)); return true }() && (file.name.split('.')[file.name.split('.').length - 1].toLowerCase() == available_extitnion)))) ? file.name.split('.')[file.name.split('.').length - 1].toLowerCase() : 'unknown'
+                let new_img = document.createElement('img')
+                new_img.src = baseUrl + extitnion + '.png'
+                new_img.alt = extitnion
+                let new_span = document.createElement('span')
+                new_span.innerText = file.name
+                new_div.append(new_img)
+                new_div.append(new_span)
+                fd.append('file', file)
+                files_div.append(new_div)
+            }
+
+            console.log(fd)
+
+
+            let response = await fetch('/uploadNewAlbum', {
+                mode: "cors",
+                method: "POST",
+                body: fd,
+            })
+
+            overlay.className = 'hidden'
+            document.querySelector("html").removeAttribute('style')
+            if (!response.ok) {
+                h1.innerText = "Wysyłanie nie powiodło się."
+                console.log(response.status);
+                return response.status;
+            } else {
+                h1.innerText = "Pomyślnie wysłano dane"
+                console.log('Pomyślnie wysłano dane')
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>
