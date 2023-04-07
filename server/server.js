@@ -353,7 +353,8 @@ var server = http.createServer(function (req, res) {
     }
 })
 
-server.listen(3000, function () {
-    console.log("serwer api startuje na porcie 3000")
-    console.log("http://localhost:3000".blue)
+const PORT = process.env.PORT || 3000
+server.listen(PORT, function () {
+    console.log(`Serwer startuje na porcie ${PORT}`)
+    console.log(`http://localhost:${PORT}`.blue)
 });
